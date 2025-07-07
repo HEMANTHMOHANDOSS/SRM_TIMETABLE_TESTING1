@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Home - SRM Timetable Management System{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5 mb-5 rounded">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="bi bi-calendar-check"></i>
+                    SRM Timetable Management
+                </h1>
+                <p class="lead mb-4">
+                    AI-powered, intelligent timetable management system for SRM College Ramapuram. 
+                    Automate scheduling, optimize resource allocation, and eliminate conflicts with 
+                    advanced artificial intelligence.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('login') }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-person-plus"></i> Register
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-robot display-1 opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <h2 class="mb-4">
+            <i class="bi bi-stars text-warning"></i>
+            Key Features
+        </h2>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="bi bi-robot text-primary fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">AI-Powered Generation</h5>
+                        </div>
+                        <p class="card-text">
+                            Advanced AI algorithms automatically generate optimal timetables, 
+                            resolving conflicts and balancing workloads intelligently.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="bi bi-shield-check text-success fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Role-Based Access</h5>
+                        </div>
+                        <p class="card-text">
+                            Secure authentication with role-based permissions for Main Admins, 
+                            Department Admins, and Staff members.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="bi bi-lightning text-info fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Real-Time Optimization</h5>
+                        </div>
+                        <p class="card-text">
+                            Dynamic conflict detection and resolution with real-time suggestions 
+                            for optimal scheduling and resource utilization.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="bi bi-file-earmark-excel text-warning fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Excel Export</h5>
+                        </div>
+                        <p class="card-text">
+                            Export generated timetables to professional Excel formats with 
+                            proper formatting and comprehensive details.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Technology Stack</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> Python Flask Frontend</li>
+                        <li><i class="bi bi-check-circle text-success"></i> FastAPI Backend</li>
+                        <li><i class="bi bi-check-circle text-success"></i> SQLite Database</li>
+                        <li><i class="bi bi-check-circle text-success"></i> AI Integration (Gemini/Groq)</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">User Roles</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-person-badge text-primary"></i> Main Administrator</li>
+                        <li><i class="bi bi-person-gear text-info"></i> Department Admin</li>
+                        <li><i class="bi bi-person text-secondary"></i> Staff Members</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="bi bi-lightbulb"></i>
+                    <strong>Note:</strong> Only SRM email addresses (@srmist.edu.in) are allowed for registration.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-key"></i>
+                    Default Login
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Main Administrator:</strong></p>
+                <p class="font-monospace small">
+                    Email: admin@srmist.edu.in<br>
+                    Password: admin123
+                </p>
+                <hr>
+                <p class="text-muted small">
+                    Staff members can register using the registration form with their SRM email addresses.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body text-center py-5">
+                <h3 class="mb-3">
+                    <i class="bi bi-rocket text-primary"></i>
+                    Ready to Get Started?
+                </h3>
+                <p class="lead mb-4">
+                    Experience the future of timetable management with AI-powered automation.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Login Now
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

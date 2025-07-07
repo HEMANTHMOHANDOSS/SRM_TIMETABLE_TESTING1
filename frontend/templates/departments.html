@@ -1,0 +1,22 @@
+<!-- templates/departments.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Departments</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Add Department</h1>
+    <form method="post">
+        <input type="text" name="name" placeholder="Enter department name" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <h2>Existing Departments</h2>
+    <ul>
+        {% for dept in departments %}
+            <li>{{ dept.name }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

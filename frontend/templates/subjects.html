@@ -1,0 +1,27 @@
+<!-- templates/subjects.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Subjects</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Subjects</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Department</th>
+        </tr>
+        {% for subject in subjects %}
+        <tr>
+            <td>{{ subject.id }}</td>
+            <td>{{ subject.code }}</td>
+            <td>{{ subject.name }}</td>
+            <td>{{ departments[subject.department_id] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

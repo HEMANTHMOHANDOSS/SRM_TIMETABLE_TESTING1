@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SRM Timetable Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-1">
+            <i class="bi bi-speedometer2 text-primary"></i>
+            Welcome, {{ current_user.name }}
+        </h1>
+        <p class="text-muted mb-0">
+            {% if current_user.user_type == 'main_admin' %}
+                Main Administrator Dashboard
+            {% else %}
+                {{ current_user.role }} - {{ current_user.department_name }}
+                {% if current_user.is_department_admin %}
+                    <span class="badge bg-info ms-2">Department Admin</span>
+                {% endif %}
+            {% endif %}
+        </p>
+    </div>
+    <div class="text-end">
+        <small class="text-muted">
+            <i class="bi bi-clock"></i>
+            Last updated: <span id="currentTime"></span>
+        </small>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-5">
+    {% if current_user.user_type == 'main_admin' %}
+        <!-- Main Admin Statistics -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-building text-primary fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Departments</h6>
+                            <h3 class="mb-0">{{ stats.total_departments }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-people text-success fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Staff</h6>
+                            <h3 class="mb-0">{{ stats.total_staff }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-book text-info fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Subjects</h6>
+                            <h3 class="mb-0">{{ stats.total_subjects }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-check-circle text-warning fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Assigned Subjects</h6>
+                            <h3 class="mb-0">{{ stats.assigned_subjects }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Staff Statistics -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-journal-bookmark text-primary fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">My Subjects</h6>
+                            <h3 class="mb-0">{{ stats.my_subjects }} / {{ stats.max_subjects }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-people text-success fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Department Staff</h6>
+                            <h3 class="mb-0">{{ stats.department_staff }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-book text-info fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Department Subjects</h6>
+                            <h3 class="mb-0">{{ stats.department_subjects }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-calendar-week text-warning fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Subject Utilization</h6>
+                            <h3 class="mb-0">{{ ((stats.my_subjects / stats.max_subjects) * 100) | round }}%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions and System Status -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning text-warning"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% if current_user.user_type == 'main_admin' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('timetable') }}" class="btn btn-primary btn-lg w-100 d-flex align-items-center">
+                                <i class="bi bi-robot fs-4 me-3"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">Generate AI Timetable</div>
+                                    <small class="opacity-75">Create optimized schedules</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('departments') }}" class="btn btn-success btn-lg w-100 d-flex align-items-center">
+                                <i class="bi bi-building fs-4 me-3"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">Manage Departments</div>
+                                    <small class="opacity-75">Add and configure departments</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('staff') }}" class="btn btn-info btn-lg w-100 d-flex align-items-center">
+                                <i class="bi bi-people fs-4 me-3"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">Manage Staff</div>
+                                    <small class="opacity-75">Add and assign staff members</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('subjects') }}" class="btn btn-warning btn-lg w-100 d-flex align-items-center">
+                                <i class="bi bi-book fs-4 me-3"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">Manage Subjects</div>
+                                    <small class="opacity-75">Create and assign subjects</small>
+                                </div>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('my_subjects') }}" class="btn btn-primary btn-lg w-100 d-flex align-items-center">
+                                <i class="bi bi-journal-bookmark fs-4 me-3"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">My Subjects</div>
+                                    <small class="opacity-75">View assigned subjects</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('my_timetable') }}" class="btn btn-success btn-lg w-100 d-flex align-items-center">
+                                <i class="bi bi-calendar-week fs-4 me-3"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">My Timetable</div>
+                                    <small class="opacity-75">View personal schedule</small>
+                                </div>
+                            </a>
+                        </div>
+                        {% if current_user.is_department_admin %}
+                            <div class="col-md-6">
+                                <a href="{{ url_for('staff') }}" class="btn btn-info btn-lg w-100 d-flex align-items-center">
+                                    <i class="bi bi-people fs-4 me-3"></i>
+                                    <div class="text-start">
+                                        <div class="fw-bold">Department Staff</div>
+                                        <small class="opacity-75">Manage department staff</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('timetable') }}" class="btn btn-warning btn-lg w-100 d-flex align-items-center">
+                                    <i class="bi bi-calendar3 fs-4 me-3"></i>
+                                    <div class="text-start">
+                                        <div class="fw-bold">Department Timetable</div>
+                                        <small class="opacity-75">Generate department schedule</small>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear text-secondary"></i>
+                    System Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3 p-3 bg-success bg-opacity-10 rounded">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-check-circle text-success fs-5"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">System Status</h6>
+                        <small class="text-muted">All systems operational</small>
+                    </div>
+                    <span class="badge bg-success">Online</span>
+                </div>
+                
+                <div class="d-flex align-items-center mb-3 p-3 bg-primary bg-opacity-10 rounded">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-database text-primary fs-5"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">Database</h6>
+                        <small class="text-muted">SQLite connected</small>
+                    </div>
+                    <span class="badge bg-primary">Active</span>
+                </div>
+                
+                <div class="d-flex align-items-center mb-3 p-3 bg-info bg-opacity-10 rounded">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-robot text-info fs-5"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">AI Engine</h6>
+                        <small class="text-muted">Timetable optimization ready</small>
+                    </div>
+                    <span class="badge bg-info">Ready</span>
+                </div>
+                
+                <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-shield-check text-warning fs-5"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">Security</h6>
+                        <small class="text-muted">Authentication active</small>
+                    </div>
+                    <span class="badge bg-warning">Secure</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity (placeholder) -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">
+                    <i class="bi bi-activity text-secondary"></i>
+                    Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-clock-history fs-1 opacity-50"></i>
+                    <p class="mt-2 mb-0">Activity tracking coming soon</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update current time
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleString();
+    document.getElementById('currentTime').textContent = timeString;
+}
+
+// Update time immediately and then every minute
+updateTime();
+setInterval(updateTime, 60000);
+
+// Add some interactivity to the cards
+document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+        this.style.transition = 'transform 0.2s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
+</script>
+{% endblock %}

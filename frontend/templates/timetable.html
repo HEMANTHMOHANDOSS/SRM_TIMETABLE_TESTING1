@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}Timetable Management - SRM Timetable Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 mb-0">
+        <i class="bi bi-calendar3 text-primary"></i>
+        Timetable Management
+    </h1>
+    <div>
+        <button class="btn btn-success" id="exportBtn" disabled>
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="bi bi-funnel"></i>
+            Timetable Filters
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="filterForm">
+            <div class="row g-3">
+                {% if current_user.user_type == 'main_admin' %}
+                <div class="col-md-3">
+                    <label for="department_id" class="form-label">Department</label>
+                    <select class="form-select" id="department_id" name="department_id" required>
+                        <option value="">Select Department</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }} ({{ dept.code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% else %}
+                <input type="hidden" id="department_id" name="department_id" value="{{ current_user.department_id }}">
+                <div class="col-md-3">
+                    <label class="form-label">Department</label>
+                    <input type="text" class="form-control" value="{{ current_user.department_name }}" readonly>
+                </div>
+                {% endif %}
+                
+                <div class="col-md-3">
+                    <label for="semester" class="form-label">Semester</label>
+                    <select class="form-select" id="semester" name="semester" required>
+                        <option value="">Select Semester</option>
+                        {% for i in range(1, 9) %}
+                            <option value="{{ i }}">Semester {{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="section" class="form-label">Section</label>
+                    <select class="form-select" id="section" name="section" required>
+                        <option value="">Select Section</option>
+                        <option value="A">Section A</option>
+                        <option value="B">Section B</option>
+                        <option value="C">Section C</option>
+                        <option value="D">Section D</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="btn-group w-100">
+                        <button type="button" class="btn btn-primary" id="loadTimetable">
+                            <i class="bi bi-search"></i> Load Timetable
+                        </button>
+                        <button type="button" class="btn btn-success" id="generateTimetable">
+                            <i class="bi bi-robot"></i> Generate AI
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- AI Generation Status -->
+<div id="generationStatus" class="alert alert-info d-none">
+    <div class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm me-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div>
+            <strong>AI Timetable Generation in Progress...</strong><br>
+            <small>Please wait while our AI optimizes the schedule for conflicts and efficiency.</small>
+        </div>
+    </div>
+</div>
+
+<!-- Timetable Display -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-table"></i>
+            Timetable View
+        </h5>
+        <div id="timetableInfo" class="text-muted small"></div>
+    </div>
+    <div class="card-body">
+        <div id="timetableContainer">
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-calendar-x display-1 opacity-25"></i>
+                <h4 class="mt-3">No Timetable Loaded</h4>
+                <p>Select department, semester, and section to view or generate a timetable.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Conflicts and Suggestions Modal -->
+<div class="modal fade" id="conflictsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                    Timetable Analysis
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="conflictsContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentTimetableData = null;
+
+// Load timetable
+document.getElementById('loadTimetable').addEventListener('click', function() {
+    const formData = new FormData(document.getElementById('filterForm'));
+    const params = new URLSearchParams(formData);
+    
+    if (!formData.get('department_id') || !formData.get('semester') || !formData.get('section')) {
+        alert('Please select all filters');
+        return;
+    }
+    
+    fetch(`/api/timetable?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                displayTimetable(data);
+                updateTimetableInfo(formData);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to load timetable');
+        });
+});
+
+// Generate AI timetable
+document.getElementById('generateTimetable').addEventListener('click', function() {
+    const formData = new FormData(document.getElementById('filterForm'));
+    
+    if (!formData.get('department_id') || !formData.get('semester') || !formData.get('section')) {
+        alert('Please select all filters');
+        return;
+    }
+    
+    const data = {
+        department_id: parseInt(formData.get('department_id')),
+        semester: parseInt(formData.get('semester')),
+        section: formData.get('section')
+    };
+    
+    // Show generation status
+    document.getElementById('generationStatus').classList.remove('d-none');
+    this.disabled = true;
+    
+    fetch('/api/generate-timetable', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        document.getElementById('generationStatus').classList.add('d-none');
+        this.disabled = false;
+        
+        if (result.error) {
+            alert(result.error);
+        } else {
+            displayTimetable(result.entries);
+            updateTimetableInfo(formData);
+            
+            // Show conflicts and suggestions if any
+            if (result.conflicts && result.conflicts.length > 0) {
+                showConflictsModal(result.conflicts, result.suggestions || []);
+            } else {
+                alert('Timetable generated successfully with no conflicts!');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('generationStatus').classList.add('d-none');
+        this.disabled = false;
+        alert('Failed to generate timetable');
+    });
+});
+
+// Export timetable
+document.getElementById('exportBtn').addEventListener('click', function() {
+    const formData = new FormData(document.getElementById('filterForm'));
+    const params = new URLSearchParams(formData);
+    
+    if (!currentTimetableData) {
+        alert('Please load a timetable first');
+        return;
+    }
+    
+    window.open(`/api/export-timetable?${params}`, '_blank');
+});
+
+function displayTimetable(entries) {
+    currentTimetableData = entries;
+    
+    if (!entries || entries.length === 0) {
+        document.getElementById('timetableContainer').innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-calendar-x display-1 opacity-25"></i>
+                <h4 class="mt-3">No Timetable Found</h4>
+                <p>Generate a timetable for the selected criteria.</p>
+            </div>
+        `;
+        document.getElementById('exportBtn').disabled = true;
+        return;
+    }
+    
+    // Enable export button
+    document.getElementById('exportBtn').disabled = false;
+    
+    // Create timetable grid
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const timeSlots = [...new Set(entries.map(e => e.time_slot_id))].sort();
+    
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Time</th>
+                        ${days.map(day => `<th class="text-center">${day}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    timeSlots.forEach(slotId => {
+        html += '<tr>';
+        html += `<td class="fw-bold bg-light">Slot ${slotId}</td>`;
+        
+        days.forEach(day => {
+            const entry = entries.find(e => e.day === day && e.time_slot_id === slotId);
+            if (entry) {
+                html += `
+                    <td class="p-2">
+                        <div class="bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded p-2">
+                            <div class="fw-bold text-primary small">${entry.subject?.name || 'Subject'}</div>
+                            <div class="text-muted small">
+                                <i class="bi bi-person"></i> ${entry.staff?.name || 'Staff'}<br>
+                                <i class="bi bi-geo-alt"></i> ${entry.classroom?.room_number || 'Room'}
+                            </div>
+                        </div>
+                    </td>
+                `;
+            } else {
+                html += '<td class="text-center text-muted">-</td>';
+            }
+        });
+        
+        html += '</tr>';
+    });
+    
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    document.getElementById('timetableContainer').innerHTML = html;
+}
+
+function updateTimetableInfo(formData) {
+    const dept = formData.get('department_id');
+    const semester = formData.get('semester');
+    const section = formData.get('section');
+    
+    document.getElementById('timetableInfo').innerHTML = `
+        Semester ${semester} - Section ${section} | 
+        ${currentTimetableData ? currentTimetableData.length : 0} entries
+    `;
+}
+
+function showConflictsModal(conflicts, suggestions) {
+    let content = '';
+    
+    if (conflicts.length > 0) {
+        content += `
+            <div class="mb-4">
+                <h6 class="text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Conflicts Detected (${conflicts.length})
+                </h6>
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        ${conflicts.map(conflict => `<li>${conflict}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (suggestions.length > 0) {
+        content += `
+            <div>
+                <h6 class="text-info">
+                    <i class="bi bi-lightbulb"></i>
+                    AI Suggestions (${suggestions.length})
+                </h6>
+                <div class="alert alert-info">
+                    <ul class="mb-0">
+                        ${suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (!content) {
+        content = `
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i>
+                No conflicts detected! The timetable has been optimized successfully.
+            </div>
+        `;
+    }
+    
+    document.getElementById('conflictsContent').innerHTML = content;
+    new bootstrap.Modal(document.getElementById('conflictsModal')).show();
+}
+</script>
+{% endblock %}

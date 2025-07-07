@@ -1,0 +1,29 @@
+<!-- templates/staff.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Staff</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Staff Members</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Department</th>
+        </tr>
+        {% for staff in staff_list %}
+        <tr>
+            <td>{{ staff.id }}</td>
+            <td>{{ staff.name }}</td>
+            <td>{{ staff.email }}</td>
+            <td>{{ staff.role }}</td>
+            <td>{{ departments[staff.department_id] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SRM Timetable Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <h3 class="mb-0">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Login to SRM Timetable System
+                </h3>
+            </div>
+            <div class="card-body p-5">
+                <form method="POST">
+                    <!-- User Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Login As</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="user_type" id="staff" value="staff" checked>
+                            <label class="btn btn-outline-primary" for="staff">
+                                <i class="bi bi-person"></i> Staff Member
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="user_type" id="main_admin" value="main_admin">
+                            <label class="btn btn-outline-primary" for="main_admin">
+                                <i class="bi bi-person-badge"></i> Main Admin
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">
+                            <i class="bi bi-envelope"></i> Email Address
+                        </label>
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                               placeholder="your.email@srmist.edu.in" required>
+                        <div class="form-text">Only SRM email addresses are allowed</div>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-bold">
+                            <i class="bi bi-lock"></i> Password
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control form-control-lg" id="password" 
+                                   name="password" placeholder="Enter your password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <!-- Register Link -->
+                <div class="text-center">
+                    <p class="mb-0">Don't have an account?</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-success">
+                        <i class="bi bi-person-plus"></i> Register as Staff
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Default Credentials Info -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Default Login Credentials
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Main Administrator:</strong><br>
+                        <code>admin@srmist.edu.in</code> / <code>admin123</code>
+                    </div>
+                </div>
+                <hr class="my-2">
+                <small class="text-muted">
+                    Staff members need to register first using their SRM email addresses.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordField = document.getElementById('password');
+    const toggleIcon = this.querySelector('i');
+    
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
+    }
+});
+</script>
+{% endblock %}
